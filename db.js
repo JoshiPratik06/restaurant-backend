@@ -1,17 +1,15 @@
-const mysql = require("mysql2/promise");
+const express = require("express");
+const app = express();
 
-// Create connection pool using Railway DATABASE_URL
-const db = mysql.createPool(process.env.DATABASE_URL);
+app.use(express.json());
 
-// Optional: test connection (recommended)
-(async () => {
-  try {
-    const connection = await db.getConnection();
-    console.log("✅ MySQL Connected Successfully");
-    connection.release();
-  } catch (err) {
-    console.error("❌ MySQL Connection Failed:", err);
-  }
-})();
+// ✅ Test route
+app.get("/", (req, res) => {
+  res.send("🚀 Backend is running successfully!");
+});
 
-module.exports = db;
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+  console.log(Server running on port ${PORT});
+});
