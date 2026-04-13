@@ -9,6 +9,7 @@ app.use(express.json());
 // Create tables if not exist and add admin support
 (async () => {
   try {
+    // ✅ USERS TABLE
     await db.execute(`CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
@@ -17,8 +18,12 @@ app.use(express.json());
       role VARCHAR(50) NOT NULL DEFAULT 'user'
     )`);
 
-    await db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) NOT NULL DEFAULT 'user'");
+    // ✅ SAFE ALTER (IGNORE ERROR IF COLUMN EXISTS)
+    try {
+      await db.execute("ALTER TABLE users ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'user'");
+    } catch (err) {}
 
+    // ✅ DELETED USERS TABLE
     await db.execute(`CREATE TABLE IF NOT EXISTS deluser (
       id INT AUTO_INCREMENT PRIMARY KEY,
       old_id INT,
@@ -29,6 +34,7 @@ app.use(express.json());
       deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
 
+    // ✅ ORDERS TABLE
     await db.execute(`CREATE TABLE IF NOT EXISTS orders (
       id INT AUTO_INCREMENT PRIMARY KEY,
       items JSON NOT NULL,
@@ -39,8 +45,12 @@ app.use(express.json());
       FOREIGN KEY (user_id) REFERENCES users(id)
     )`);
 
-    await db.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50) DEFAULT 'Netbanking'");
+    // ✅ SAFE ALTER AGAIN
+    try {
+      await db.execute("ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Netbanking'");
+    } catch (err) {}
 
+    // ✅ ADMIN SEED
     await db.execute(`INSERT INTO users (name, email, password, role)
       SELECT 'Admin', 'tandoori@gmail.com', 'tandoori@123', 'admin'
       FROM DUAL
@@ -48,6 +58,7 @@ app.use(express.json());
     `);
 
     console.log("✅ Tables ready and admin seed ensured");
+
   } catch (err) {
     console.error("❌ Table creation error:", err);
   }
@@ -293,6 +304,6 @@ app.get("/", (req, res) => {
    🚀 SERVER START
 ========================= */
 
-app.listen(5000, () => {
-  console.log("🔥 Server running on http://localhost:5000");
+app.listen(PORT, () => {
+  console.log(`🔥 Server running on port ${PORT}`);
 });
