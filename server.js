@@ -18,11 +18,6 @@ app.use(express.json());
       role VARCHAR(50) NOT NULL DEFAULT 'user'
     )`);
 
-    // ✅ SAFE ALTER (IGNORE ERROR IF COLUMN EXISTS)
-    try {
-      await db.execute("ALTER TABLE users ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'user'");
-    } catch (err) {}
-
     // ✅ DELETED USERS TABLE
     await db.execute(`CREATE TABLE IF NOT EXISTS deluser (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -44,11 +39,6 @@ app.use(express.json());
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users(id)
     )`);
-
-    // ✅ SAFE ALTER AGAIN
-    try {
-      await db.execute("ALTER TABLE orders ADD COLUMN payment_method VARCHAR(50) DEFAULT 'Netbanking'");
-    } catch (err) {}
 
     // ✅ ADMIN SEED
     await db.execute(`INSERT INTO users (name, email, password, role)
